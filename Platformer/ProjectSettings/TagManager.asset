@@ -17,9 +17,9 @@ TagManager:
   - GroundedDetector
   - Ground
   - Player
-  - 
-  - 
-  - 
+  - PlayerSideCollider
+  - PlayerTopCollider
+  - Ledge
   - 
   - 
   - 

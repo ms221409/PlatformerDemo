@@ -3,37 +3,60 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GroundedDetector : MonoBehaviour
-{ 
+{
     private PlayerMotor _playerMotor;
-    private bool _canGrounded = true;
+    public enum GroundedState
+    {
+        Grounded,
+        Airborne
+    }
+    public GroundedState groundedState = GroundedState.Airborne;
+
+    public BoxCollider boxCast;
+    public LayerMask groundLayers;
+    public Transform groundedRaycastSource;
+    public float groundedDistance = 0.5f;
+    public float offGroundDistance = 0.5f;
+    RaycastHit _downRayHit;
+    GroundedDetectorCollider _detectorCollider;
 
 
     private void Start()
     {
         _playerMotor = GetComponentInParent<PlayerMotor>();
-    }
-
-
-    /// <summary>
-    /// Respond to trigger.
-    /// </summary>
-    /// <param name="other">Other.</param>
-    private void OnTriggerEnter(Collider other)
-    {
-        _playerMotor.OnGrounded();
-    }
-
-
-    public void OnJump ()
-    {
-        _canGrounded = false;
-        Invoke("EnableGrounded", _playerMotor.jumpMinTime);
+        _detectorCollider = GetComponentInChildren<GroundedDetectorCollider>();
     }
 
 
     //
-    void EnableGrounded ()
+    private void FixedUpdate()
     {
-        _canGrounded = true;
+        // Raycast down
+        if (Physics.BoxCast(groundedRaycastSource.position, boxCast.size / 2, Vector3.down, out _downRayHit, transform.rotation, groundedDistance, groundLayers))
+        {
+            if (groundedState != GroundedState.Grounded && _playerMotor.GetplayerMovementVector ().y < 0 && !_detectorCollider._isCollided)
+            {
+                OnLand();
+            }
+        }
+        else
+            groundedState = GroundedState.Airborne;
+    }
+
+
+    //
+    private void OnLand()
+    {
+        groundedState = GroundedState.Grounded;
+        _playerMotor.OnGrounded();
+        Debug.Log("G R O U N D E D");
+    }
+
+
+    //
+    public float GetGroundYPosition ()
+    {
+        return _downRayHit.point.y;
     }
 }
+
