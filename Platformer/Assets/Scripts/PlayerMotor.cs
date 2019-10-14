@@ -9,6 +9,7 @@ public class PlayerMotor : MonoBehaviour
     public float movementRedux;
     public float jumpForce;
     public float fallRate;
+    public float maxFallRate = -30;
     public float jumpMinTime = 0.2f;
     public float ledgeGrabVelocityMax = -8f;
 
@@ -163,6 +164,9 @@ public class PlayerMotor : MonoBehaviour
             _currentVerticalVector = 0;
         else if (_topCollider.isCollided)
             _currentVerticalVector = Mathf.Min(_currentVerticalVector, 0);
+
+        //
+        _currentVerticalVector = Mathf.Max(_currentVerticalVector, maxFallRate);
 
         //
         _currentHorizontalVector = Mathf.Lerp(_currentHorizontalVector, 0, Time.deltaTime * movementRedux);
